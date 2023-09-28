@@ -4,9 +4,10 @@ const { AutoLayout, Image, Rectangle, Text, useSyncedState, useEffect } =
 
 type Props = {
   showName: boolean;
+  setShowName: (showName: boolean) => void;
 };
 
-export function UserBadge({ showName }: Props) {
+export function UserBadge({ showName, setShowName }: Props) {
   const [name, setName] = useSyncedState<string>("name", "");
   const [photoUrl, setPhotoUrl] = useSyncedState<string | null>(
     "photoUrl",
@@ -43,6 +44,10 @@ export function UserBadge({ showName }: Props) {
       // }}
     >
       <AutoLayout
+        onClick={() => {
+          console.log("onClick UserBadge");
+          setShowName(!showName);
+        }}
         direction="horizontal"
         horizontalAlignItems="center"
         verticalAlignItems="center"
