@@ -1,6 +1,6 @@
 {
   "name": "Tag Note",
-  "id": "1288678186602033988",
+  "id": "1301142159170473003",
   "api": "1.0.0",
   "main": "dist/code.js",
   "capabilities": [],
@@ -8,5 +8,6 @@
   "editorType": ["figma", "figjam"],
   "permissions": ["currentuser"],
   "containsWidget": true,
-  "widgetApi": "1.0.0"
+  "widgetApi": "1.0.0",
+  "networkAccess": { "allowedDomains": ["none"] }
 }
