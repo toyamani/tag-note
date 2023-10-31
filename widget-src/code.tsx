@@ -1,7 +1,7 @@
 // This is a counter widget with buttons to increment and decrement the number.
 
 const { widget } = figma;
-const { useSyncedState, usePropertyMenu, AutoLayout, Line, Text, SVG } = widget;
+const { useSyncedState, usePropertyMenu, AutoLayout, Line, Ellipse } = widget;
 import { ReloadIcon, PeopleIcon, TagIcon } from "./assets/svg-icons";
 import { TextInput, UserBadge, TagLabel } from "./components/index";
 import { Tag, TagType, LnType, LanguageOptions } from "./constants/index";
@@ -10,6 +10,10 @@ function Widget() {
   const [ln, setLn] = useSyncedState<LnType>("ln", "en");
   const [tag, setTag] = useSyncedState<TagType>("tag", Tag.SPECS);
   const [toggleTag, setToggleTag] = useSyncedState<boolean>("toggleTag", true);
+  const [toggleCustom, setToggleCustom] = useSyncedState<boolean>(
+    "toggleCustom",
+    true
+  );
   const [toggleUserBadge, setToggleUserBadge] = useSyncedState<boolean>(
     "toggleUserBadge",
     true
@@ -49,6 +53,14 @@ function Widget() {
       },
       {
         itemType: "toggle",
+        tooltip: "Toggle Custom",
+        propertyName: "toggleCustom",
+        isToggled: toggleCustom,
+        // TODO: fix icon
+        icon: TagIcon,
+      },
+      {
+        itemType: "toggle",
         tooltip: "Toggle User",
         propertyName: "toggleUser",
         isToggled: toggleUserBadge,
@@ -77,6 +89,9 @@ function Widget() {
         setToggleTag(!toggleTag);
         // NOTE: Reset Tag
         setTag(Tag.SPECS);
+      }
+      if (propertyName === "toggleCustom") {
+        setToggleCustom(!toggleCustom);
       }
       if (propertyName === "toggleUser") {
         setToggleUserBadge(!toggleUserBadge);
@@ -110,7 +125,7 @@ function Widget() {
         stroke={tag.color}
         strokeWidth={5}
       >
-        {toggleTag && <TagLabel tag={tag} ln={ln} />}
+        {toggleTag && <TagLabel tag={tag} ln={ln} isCustom={toggleCustom} />}
         <TextInput />
         {toggleUserBadge && (
           <UserBadge showName={showName} setShowName={setShowName} />

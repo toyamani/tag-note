@@ -1,23 +1,33 @@
 const { widget } = figma;
-const { AutoLayout, Text } = widget;
+const { AutoLayout, Text, Input, useSyncedState } = widget;
 import { TagType, LnType } from "../constants/index";
 
 type Props = {
   tag: TagType;
   ln: LnType;
+  isCustom: boolean;
 };
-export function TagLabel({ tag, ln }: Props) {
+export function TagLabel({ tag, ln, isCustom }: Props) {
+  const [text, setText] = useSyncedState("tagText", "");
   return (
     <AutoLayout padding={8} cornerRadius={8} fill={tag.color}>
-      <Text
-        // onClick={() => {
-        //   console.log("onClick Tag");
-        // }}
-        fill="#fff"
-        fontWeight={700}
-      >
-        {tag.label[ln]}
-      </Text>
+      {isCustom ? (
+        <Input
+          value={text}
+          fontWeight={700}
+          fill="#fff"
+          width={100}
+          // TODO: fix Language
+          placeholder="Type Tag"
+          onTextEditEnd={(e) => {
+            setText(e.characters);
+          }}
+        />
+      ) : (
+        <Text fill="#fff" fontWeight={700}>
+          {tag.label[ln]}
+        </Text>
+      )}
     </AutoLayout>
   );
 }
