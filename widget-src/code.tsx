@@ -12,7 +12,7 @@ function Widget() {
   const [toggleTag, setToggleTag] = useSyncedState<boolean>("toggleTag", true);
   const [toggleCustom, setToggleCustom] = useSyncedState<boolean>(
     "toggleCustom",
-    true
+    false
   );
   const [customTagColor, setCustomTagColor] = useSyncedState<string>(
     "customTagColor",
