@@ -14,11 +14,16 @@ function Widget() {
     "toggleCustom",
     true
   );
+  const [customTagColor, setCustomTagColor] = useSyncedState<string>(
+    "customTagColor",
+    "#000000"
+  );
   const [toggleUserBadge, setToggleUserBadge] = useSyncedState<boolean>(
     "toggleUserBadge",
     true
   );
   const [showName, setShowName] = useSyncedState<boolean>("showName", true);
+  const color = toggleCustom ? customTagColor : tag.color;
 
   const dropdownItems: Array<WidgetPropertyMenuItem> = toggleTag
     ? [
@@ -60,6 +65,19 @@ function Widget() {
         icon: TagIcon,
       },
       {
+        itemType: "color-selector",
+        tooltip: "Custom Tag Color",
+        propertyName: "customTagColor",
+        options: [
+          // TODO: fix color
+          { tooltip: "confirm", option: "#F3C759" },
+          { tooltip: "cancel", option: "#000000" },
+          { tooltip: "cancel", option: "#8B90BE" },
+          { tooltip: "cancel", option: "#DA6272" },
+        ],
+        selectedOption: customTagColor,
+      },
+      {
         itemType: "toggle",
         tooltip: "Toggle User",
         propertyName: "toggleUser",
@@ -84,6 +102,11 @@ function Widget() {
           return;
         }
         console.error("selected error");
+      }
+      if (propertyName === "customTagColor") {
+        console.info("customTagColor", propertyValue);
+        // TODO: fix color
+        setCustomTagColor(propertyValue ?? "#000000");
       }
       if (propertyName === "toggleTag") {
         setToggleTag(!toggleTag);
@@ -122,10 +145,17 @@ function Widget() {
         padding={16}
         cornerRadius={8}
         fill={"#FFFFFF"}
-        stroke={tag.color}
+        stroke={color}
         strokeWidth={5}
       >
-        {toggleTag && <TagLabel tag={tag} ln={ln} isCustom={toggleCustom} />}
+        {toggleTag && (
+          <TagLabel
+            tag={tag}
+            tagColor={color}
+            ln={ln}
+            isCustom={toggleCustom}
+          />
+        )}
         <TextInput />
         {toggleUserBadge && (
           <UserBadge showName={showName} setShowName={setShowName} />
