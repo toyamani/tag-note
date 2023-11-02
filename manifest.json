@@ -8,6 +8,5 @@
   "editorType": ["figma", "figjam"],
   "permissions": ["currentuser"],
   "containsWidget": true,
-  "widgetApi": "1.0.0",
-  "networkAccess": { "allowedDomains": ["none"] }
+  "widgetApi": "1.0.0"
 }
