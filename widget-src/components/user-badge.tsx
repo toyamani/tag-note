@@ -50,9 +50,9 @@ export function UserBadge({ showName, setShowName }: Props) {
         cornerRadius={8}
       >
         {photoUrl ? (
-          <Image cornerRadius={6} width={30} height={30} src={photoUrl} />
+          <Image cornerRadius={6} width={20} height={20} src={photoUrl} />
         ) : (
-          <Rectangle cornerRadius={6} width={30} height={30} fill="#2A2A2A" />
+          <Rectangle cornerRadius={6} width={20} height={20} fill="#2A2A2A" />
         )}
         {showName && (
           <AutoLayout
@@ -60,9 +60,9 @@ export function UserBadge({ showName, setShowName }: Props) {
             horizontalAlignItems="center"
             verticalAlignItems="center"
             height="hug-contents"
-            padding={4}
+            padding={2}
           >
-            <Text fontSize={16}>{name}</Text>
+            <Text fontSize={12}>{name}</Text>
           </AutoLayout>
         )}
       </AutoLayout>

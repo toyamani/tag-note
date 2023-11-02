@@ -1,5 +1,5 @@
 const { widget } = figma;
-const { useSyncedState, usePropertyMenu, AutoLayout } = widget;
+const { useSyncedState, usePropertyMenu, AutoLayout, Text, Span } = widget;
 import { ReloadIcon, PeopleIcon, TagIcon } from "./assets/svg-icons";
 import {
   TextInput,
@@ -7,6 +7,7 @@ import {
   TagLabel,
   LineConnector,
   Checkbox,
+  DisabledView,
 } from "./components/index";
 import {
   LnType,
@@ -18,8 +19,14 @@ import {
 } from "./constants/index";
 
 function Widget() {
+  const date = new Date();
+  const [editDate, setEditDate] = useSyncedState<string>(
+    "editDate",
+    date.toLocaleString()
+  );
   const [ln, setLn] = useSyncedState<LnType>("ln", "en");
   const [checked, setChecked] = useSyncedState<boolean>("checked", false);
+  const [disabled, setDisabled] = useSyncedState<boolean>("disabled", false);
   const [tagOption, setTagOption] = useSyncedState<TagOptionsType>(
     "tagOption",
     EnglishTagOptions
@@ -27,7 +34,7 @@ function Widget() {
   const [tag, setTag] = useSyncedState<TagType>("tag", EnglishTagOptions[0]);
   const [customTagOptions, setCustomTagOptions] =
     useSyncedState<TagOptionsType>("customTagOptions", [
-      { option: "custom", label: "Custom", color: "#42AAC7" },
+      { option: "custom", label: "", color: "#42AAC7" },
     ]);
   const [toggleTag, setToggleTag] = useSyncedState<boolean>("toggleTag", true);
   const [toggleUserBadge, setToggleUserBadge] = useSyncedState<boolean>(
@@ -50,49 +57,48 @@ function Widget() {
     setTag(newTag ?? customTagOptions[0]);
   };
 
+  const updateEditDate = () => {
+    const date = new Date();
+    setEditDate(date.toLocaleString());
+  };
+
   const toggleChecked = () => {
     setChecked(!checked);
   };
 
-  const dropdownItems: Array<WidgetPropertyMenuItem> = toggleTag
-    ? [
-        {
-          itemType: "dropdown",
-          propertyName: "language",
-          tooltip: "Language",
-          selectedOption: ln,
-          options: LanguageOptions,
-        },
-        { itemType: "separator" },
-        {
-          itemType: "dropdown",
-          propertyName: "tag",
-          tooltip: "TagType",
-          selectedOption: tag.option,
-          options: tagOption.map((tag) => {
-            return { option: tag.option, label: tag.label };
-          }),
-        },
-      ]
-    : [];
+  const toggleDisabledView = () => {
+    setDisabled(!disabled);
+  };
 
   usePropertyMenu(
     [
-      ...dropdownItems,
-      {
-        itemType: "color-selector",
-        tooltip: "Custom Tag Color",
-        propertyName: "customTagColor",
-        options: [
-          // TODO: fix color
-          { tooltip: "confirm", option: "#42AAC7" },
-          { tooltip: "cancel", option: "#8B90BE" },
-          { tooltip: "cancel", option: "#DA6272" },
-          { tooltip: "cancel", option: "#5EC84E" },
-          { tooltip: "cancel", option: "#F3C759" },
-        ],
-        selectedOption: tag.color,
-      },
+      toggleTag && !isCustom
+        ? {
+            itemType: "dropdown",
+            propertyName: "tag",
+            tooltip: "TagType",
+            selectedOption: tag.option,
+            options: tagOption.map((tag) => {
+              return { option: tag.option, label: tag.label };
+            }),
+          }
+        : { itemType: "separator" },
+      isCustom
+        ? {
+            itemType: "color-selector",
+            tooltip: "Custom Tag Color",
+            propertyName: "customTagColor",
+            options: [
+              // TODO: fix color
+              { tooltip: "confirm", option: "#42AAC7" },
+              { tooltip: "cancel", option: "#8B90BE" },
+              { tooltip: "cancel", option: "#DA6272" },
+              { tooltip: "cancel", option: "#5EC84E" },
+              { tooltip: "cancel", option: "#F3C759" },
+            ],
+            selectedOption: tag.color,
+          }
+        : { itemType: "separator" },
       {
         itemType: "separator",
       },
@@ -110,12 +116,15 @@ function Widget() {
         isToggled: toggleUserBadge,
         icon: PeopleIcon,
       },
-      // {
-      //   itemType: "action",
-      //   propertyName: "reset",
-      //   tooltip: "Reset",
-      //   icon: ReloadIcon,
-      // },
+      toggleTag
+        ? {
+            itemType: "dropdown",
+            propertyName: "language",
+            tooltip: "Language",
+            selectedOption: ln,
+            options: LanguageOptions,
+          }
+        : { itemType: "separator" },
     ],
     ({ propertyName, propertyValue }) => {
       if (propertyName === "language") {
@@ -162,16 +171,10 @@ function Widget() {
       }
       if (propertyName === "toggleTag") {
         setToggleTag(!toggleTag);
-        // NOTE: Reset Tag
-        setTag(EnglishTagOptions[0]);
       }
       if (propertyName === "toggleUser") {
         setToggleUserBadge(!toggleUserBadge);
       }
-      // if (propertyName === "reset") {
-      //   console.info("reset");
-      //   // setCount(0);
-      // }
     }
   );
 
@@ -179,19 +182,10 @@ function Widget() {
     <AutoLayout
       horizontalAlignItems={"center"}
       verticalAlignItems="center"
-      // opacity={checked ? 0.2 : 1}
+      opacity={disabled ? 0.5 : 1}
     >
       <LineConnector color={tag.color} />
-      <AutoLayout
-        direction={"vertical"}
-        verticalAlignItems={"center"}
-        spacing={8}
-        padding={16}
-        cornerRadius={8}
-        fill={"#FFFFFF"}
-        stroke={tag.color}
-        strokeWidth={5}
-      >
+      <AutoLayout direction={"vertical"} spacing={4}>
         {toggleTag && (
           <TagLabel
             tagName={tag.label}
@@ -200,12 +194,38 @@ function Widget() {
             onTagChange={updateCustomTagName}
           />
         )}
-        <TextInput />
-        {toggleUserBadge && (
-          <UserBadge showName={showName} setShowName={setShowName} />
-        )}
-        <AutoLayout positioning="absolute" x={490} y={170}>
-          <Checkbox checked={checked} onClick={toggleChecked} />
+        <AutoLayout
+          direction={"vertical"}
+          verticalAlignItems={"center"}
+          spacing={8}
+          padding={16}
+          cornerRadius={8}
+          fill={"#FFFFFF"}
+          stroke={tag.color}
+          strokeWidth={5}
+        >
+          <AutoLayout padding={{ bottom: 16 }}>
+            <TextInput onChange={updateEditDate} />
+          </AutoLayout>
+          <AutoLayout
+            width={"fill-parent"}
+            direction={"vertical"}
+            horizontalAlignItems={"end"}
+            spacing={4}
+          >
+            <AutoLayout
+              direction={"horizontal"}
+              verticalAlignItems={"center"}
+              spacing={8}
+            >
+              {toggleUserBadge && (
+                <UserBadge showName={showName} setShowName={setShowName} />
+              )}
+              <DisabledView disabled={disabled} onClick={toggleDisabledView} />
+              <Checkbox checked={checked} onClick={toggleChecked} />
+            </AutoLayout>
+            <Text fill={"#777777"}>{editDate}</Text>
+          </AutoLayout>
         </AutoLayout>
       </AutoLayout>
     </AutoLayout>

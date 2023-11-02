@@ -13,6 +13,8 @@ export function Checkbox({ checked, onClick }: Props) {
       src={CheckboxIcon}
       onClick={onClick}
       fill={checked ? "#42AAC7" : "#DDDDDD"}
+      width={25}
+      height={25}
     />
   );
 }
