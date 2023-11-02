@@ -184,7 +184,7 @@ function Widget() {
         );
         setTag(newTag ?? customTagOptions[0]);
       }
-      if (propertyName === "lineDeriction") {
+      if (propertyName === "lineDirection") {
         setLineDirection(propertyValue as LineDirectionType);
       }
       if (propertyName === "toggleTag") {
