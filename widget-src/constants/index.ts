@@ -1,1 +1,10 @@
-export { Tag, TagType, LanguageOptions, LnType } from "./tag";
+export {
+  LanguageOptions,
+  LnType,
+  TagType,
+  TagOptionsType,
+  TagOptions,
+  EnglishTagOptions,
+  JapaneseTagOptions,
+  IconTagOptions,
+} from "./tag";

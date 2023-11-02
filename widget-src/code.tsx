@@ -1,41 +1,55 @@
-// This is a counter widget with buttons to increment and decrement the number.
-
 const { widget } = figma;
 const { useSyncedState, usePropertyMenu, AutoLayout, Line, Ellipse } = widget;
 import { ReloadIcon, PeopleIcon, TagIcon } from "./assets/svg-icons";
-import { TextInput, UserBadge, TagLabel } from "./components/index";
-import { Tag, TagType, LnType, LanguageOptions } from "./constants/index";
+import {
+  TextInput,
+  UserBadge,
+  TagLabel,
+  LineConnector,
+} from "./components/index";
+import {
+  LnType,
+  LanguageOptions,
+  EnglishTagOptions,
+  TagOptionsType,
+  TagType,
+  TagOptions,
+} from "./constants/index";
 
 function Widget() {
   const [ln, setLn] = useSyncedState<LnType>("ln", "en");
-  const [tag, setTag] = useSyncedState<TagType>("tag", Tag.SPECS);
+  const [tagOption, setTagOption] = useSyncedState<TagOptionsType>(
+    "tagOption",
+    EnglishTagOptions
+  );
+  const [tag, setTag] = useSyncedState<TagType>("tag", EnglishTagOptions[0]);
+  const [customTagOptions, setCustomTagOptions] =
+    useSyncedState<TagOptionsType>("customTagOptions", [
+      { option: "custom", label: "Custom", color: "#42AAC7" },
+    ]);
   const [toggleTag, setToggleTag] = useSyncedState<boolean>("toggleTag", true);
-  const [toggleCustom, setToggleCustom] = useSyncedState<boolean>(
-    "toggleCustom",
-    false
-  );
-  const [customTagColor, setCustomTagColor] = useSyncedState<string>(
-    "customTagColor",
-    "#000000"
-  );
   const [toggleUserBadge, setToggleUserBadge] = useSyncedState<boolean>(
     "toggleUserBadge",
     true
   );
   const [showName, setShowName] = useSyncedState<boolean>("showName", true);
-  const color = toggleCustom ? customTagColor : tag.color;
+  const isCustom = tag.option === "custom";
+
+  const updateCustomTagName = (tagName: string) => {
+    const newCustomTagOptions = customTagOptions.map((option) => {
+      if (tag.option === option.option) {
+        return { ...tag, label: tagName };
+      }
+      return option;
+    });
+    setCustomTagOptions(newCustomTagOptions);
+    setTagOption(newCustomTagOptions);
+    const newTag = newCustomTagOptions.find((tag) => tag.option === tag.option);
+    setTag(newTag ?? customTagOptions[0]);
+  };
 
   const dropdownItems: Array<WidgetPropertyMenuItem> = toggleTag
     ? [
-        {
-          itemType: "dropdown",
-          propertyName: "tag",
-          tooltip: "TagType",
-          selectedOption: tag.option,
-          options: Object.values(Tag).map((tag) => {
-            return { option: tag.option, label: tag.label[ln] };
-          }),
-        },
         {
           itemType: "dropdown",
           propertyName: "language",
@@ -43,12 +57,39 @@ function Widget() {
           selectedOption: ln,
           options: LanguageOptions,
         },
+        { itemType: "separator" },
+        {
+          itemType: "dropdown",
+          propertyName: "tag",
+          tooltip: "TagType",
+          selectedOption: tag.option,
+          options: tagOption.map((tag) => {
+            return { option: tag.option, label: tag.label };
+          }),
+        },
       ]
     : [];
 
   usePropertyMenu(
     [
       ...dropdownItems,
+      {
+        itemType: "color-selector",
+        tooltip: "Custom Tag Color",
+        propertyName: "customTagColor",
+        options: [
+          // TODO: fix color
+          { tooltip: "confirm", option: "#42AAC7" },
+          { tooltip: "cancel", option: "#8B90BE" },
+          { tooltip: "cancel", option: "#DA6272" },
+          { tooltip: "cancel", option: "#5EC84E" },
+          { tooltip: "cancel", option: "#F3C759" },
+        ],
+        selectedOption: tag.color,
+      },
+      {
+        itemType: "separator",
+      },
       {
         itemType: "toggle",
         tooltip: "Toggle Tag",
@@ -58,45 +99,36 @@ function Widget() {
       },
       {
         itemType: "toggle",
-        tooltip: "Toggle Custom",
-        propertyName: "toggleCustom",
-        isToggled: toggleCustom,
-        // TODO: fix icon
-        icon: TagIcon,
-      },
-      {
-        itemType: "color-selector",
-        tooltip: "Custom Tag Color",
-        propertyName: "customTagColor",
-        options: [
-          // TODO: fix color
-          { tooltip: "confirm", option: "#F3C759" },
-          { tooltip: "cancel", option: "#000000" },
-          { tooltip: "cancel", option: "#8B90BE" },
-          { tooltip: "cancel", option: "#DA6272" },
-        ],
-        selectedOption: customTagColor,
-      },
-      {
-        itemType: "toggle",
         tooltip: "Toggle User",
         propertyName: "toggleUser",
         isToggled: toggleUserBadge,
         icon: PeopleIcon,
       },
-      {
-        itemType: "action",
-        propertyName: "reset",
-        tooltip: "Reset",
-        icon: ReloadIcon,
-      },
+      // {
+      //   itemType: "action",
+      //   propertyName: "reset",
+      //   tooltip: "Reset",
+      //   icon: ReloadIcon,
+      // },
     ],
     ({ propertyName, propertyValue }) => {
+      if (propertyName === "language") {
+        console.info("language", propertyValue);
+        setLn(propertyValue as LnType);
+        console.log(TagOptions);
+        if (propertyValue === "custom") {
+          setTagOption(customTagOptions);
+          setTag(customTagOptions[0]);
+        } else {
+          const newTagOption = TagOptions[propertyValue as LnType];
+          console.log("newTagOption", newTagOption);
+          setTagOption(newTagOption);
+          setTag(newTagOption[0]);
+        }
+      }
       if (propertyName === "tag") {
         console.info("tag", propertyValue);
-        const newTag = Object.values(Tag).find(
-          (tag) => tag.option === propertyValue
-        );
+        const newTag = tagOption.find((tag) => tag.option === propertyValue);
         if (newTag) {
           setTag(newTag);
           return;
@@ -106,56 +138,40 @@ function Widget() {
       if (propertyName === "customTagColor") {
         console.info("customTagColor", propertyValue);
         // TODO: fix color
-        setCustomTagColor(propertyValue ?? "#000000");
+        const newCustomTagOptions = customTagOptions.map((option) => {
+          console.log("option", option, tag);
+          if (tag.option === option.option) {
+            console.log("chage color");
+            return { ...tag, color: propertyValue ?? "#42AAC7" };
+          }
+          return option;
+        });
+        console.log("newCustomTagOptions", newCustomTagOptions);
+        setCustomTagOptions(newCustomTagOptions);
+        setTagOption(newCustomTagOptions);
+        const newTag = newCustomTagOptions.find(
+          (tag) => tag.option === tag.option
+        );
+        setTag(newTag ?? customTagOptions[0]);
       }
       if (propertyName === "toggleTag") {
         setToggleTag(!toggleTag);
         // NOTE: Reset Tag
-        setTag(Tag.SPECS);
-      }
-      if (propertyName === "toggleCustom") {
-        setToggleCustom(!toggleCustom);
+        setTag(EnglishTagOptions[0]);
       }
       if (propertyName === "toggleUser") {
         setToggleUserBadge(!toggleUserBadge);
       }
-      if (propertyName === "language") {
-        console.info("language", propertyValue);
-        setLn(propertyValue as LnType);
-      }
-      if (propertyName === "reset") {
-        console.info("reset");
-        // setCount(0);
-      }
+      // if (propertyName === "reset") {
+      //   console.info("reset");
+      //   // setCount(0);
+      // }
     }
   );
 
   return (
     <AutoLayout horizontalAlignItems={"center"} verticalAlignItems="center">
-      <AutoLayout
-        width={200}
-        height={50}
-        direction="horizontal"
-        verticalAlignItems="center"
-        horizontalAlignItems="center"
-        y={50}
-      >
-        <Ellipse
-          fill={color}
-          width={15}
-          height={15}
-          y={15}
-          positioning="absolute"
-        />
-        <Line
-          length={200}
-          strokeWidth={5}
-          stroke={color}
-          y={25}
-          x={10}
-          positioning="absolute"
-        />
-      </AutoLayout>
+      <LineConnector color={tag.color} />
       <AutoLayout
         direction={"vertical"}
         verticalAlignItems={"center"}
@@ -163,15 +179,15 @@ function Widget() {
         padding={16}
         cornerRadius={8}
         fill={"#FFFFFF"}
-        stroke={color}
+        stroke={tag.color}
         strokeWidth={5}
       >
         {toggleTag && (
           <TagLabel
-            tag={tag}
-            tagColor={color}
-            ln={ln}
-            isCustom={toggleCustom}
+            tagName={tag.label}
+            tagColor={tag.color}
+            isCustom={isCustom}
+            onTagChange={updateCustomTagName}
           />
         )}
         <TextInput />
