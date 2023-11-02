@@ -17,13 +17,15 @@ import {
   TagType,
   TagOptions,
 } from "./constants/index";
+import { formatDate } from "./functions/format-date";
 
 function Widget() {
   const date = new Date();
   const [editDate, setEditDate] = useSyncedState<string>(
     "editDate",
-    date.toLocaleString()
+    formatDate(date)
   );
+
   const [ln, setLn] = useSyncedState<LnType>("ln", "en");
   const [checked, setChecked] = useSyncedState<boolean>("checked", false);
   const [disabled, setDisabled] = useSyncedState<boolean>("disabled", false);
@@ -58,8 +60,8 @@ function Widget() {
   };
 
   const updateEditDate = () => {
-    const date = new Date();
-    setEditDate(date.toLocaleString());
+    const updateDate = new Date();
+    setEditDate(formatDate(updateDate));
   };
 
   const toggleChecked = () => {
