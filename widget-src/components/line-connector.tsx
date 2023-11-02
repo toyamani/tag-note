@@ -1,10 +1,13 @@
+import { LineDirectionType } from "../constants/line";
+
 const { widget } = figma;
 const { AutoLayout, Line, Ellipse } = widget;
 
 type Props = {
   color: string;
+  direction: LineDirectionType;
 };
-export function LineConnector({ color }: Props) {
+export function LineConnector({ color, direction }: Props) {
   return (
     <AutoLayout
       width={200}

@@ -1,4 +1,4 @@
-const { widget } = figma;
+const { widget, currentPage } = figma;
 const { useSyncedState, usePropertyMenu, AutoLayout, Text, Span } = widget;
 import { ReloadIcon, PeopleIcon, TagIcon } from "./assets/svg-icons";
 import {
@@ -16,6 +16,8 @@ import {
   TagOptionsType,
   TagType,
   TagOptions,
+  LineDirectionType,
+  LineDirectionOptions,
 } from "./constants/index";
 import { formatDate } from "./functions/format-date";
 
@@ -27,6 +29,10 @@ function Widget() {
   );
 
   const [ln, setLn] = useSyncedState<LnType>("ln", "en");
+  const [lineDirection, setLineDirection] = useSyncedState<LineDirectionType>(
+    "lineDirection",
+    "left"
+  );
   const [checked, setChecked] = useSyncedState<boolean>("checked", false);
   const [disabled, setDisabled] = useSyncedState<boolean>("disabled", false);
   const [tagOption, setTagOption] = useSyncedState<TagOptionsType>(
@@ -102,6 +108,13 @@ function Widget() {
           }
         : { itemType: "separator" },
       {
+        itemType: "dropdown",
+        propertyName: "lineDirection",
+        tooltip: "Line Direction",
+        selectedOption: lineDirection,
+        options: LineDirectionOptions,
+      },
+      {
         itemType: "separator",
       },
       {
@@ -171,6 +184,9 @@ function Widget() {
         );
         setTag(newTag ?? customTagOptions[0]);
       }
+      if (propertyName === "lineDeriction") {
+        setLineDirection(propertyValue as LineDirectionType);
+      }
       if (propertyName === "toggleTag") {
         setToggleTag(!toggleTag);
       }
@@ -186,7 +202,9 @@ function Widget() {
       verticalAlignItems="center"
       opacity={disabled ? 0.5 : 1}
     >
-      <LineConnector color={tag.color} />
+      {lineDirection !== "none" && (
+        <LineConnector color={tag.color} direction={lineDirection} />
+      )}
       <AutoLayout direction={"vertical"} spacing={4}>
         {toggleTag && (
           <TagLabel

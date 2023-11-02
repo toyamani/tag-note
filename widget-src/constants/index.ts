@@ -8,3 +8,5 @@ export {
   JapaneseTagOptions,
   IconTagOptions,
 } from "./tag";
+
+export { LineDirectionType, LineDirectionOptions } from "./line";
