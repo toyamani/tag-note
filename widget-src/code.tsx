@@ -18,7 +18,7 @@ import {
   TagOptions,
   LineDirectionType,
   LineDirectionOptions,
-} from "./constants/index";
+} from "./const/index";
 import { formatDate } from "./functions/format-date";
 
 function Widget() {

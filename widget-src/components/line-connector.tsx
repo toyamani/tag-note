@@ -1,4 +1,4 @@
-import { LineDirectionType } from "../constants/line";
+import { LineDirectionType } from "../const/line";
 
 const { widget } = figma;
 const { AutoLayout, Line, Ellipse } = widget;

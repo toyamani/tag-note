@@ -1,6 +1,6 @@
 const { widget } = figma;
 const { AutoLayout, Text, Input, useSyncedState } = widget;
-import { LnType } from "../constants/index";
+import { LnType } from "../const/index";
 
 type Props = {
   tagName: string;
