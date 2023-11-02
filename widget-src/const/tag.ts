@@ -1,7 +1,7 @@
 export const Language = {
   en: { option: "en", label: "English" },
   ja: { option: "ja", label: "Japanese" },
-  icon: { option: "icon", label: "Icon" },
+  // icon: { option: "icon", label: "Icon" },
   custom: { option: "custom", label: "Custom" },
 };
 
@@ -45,6 +45,6 @@ export const IconTagOptions = [
 export const TagOptions = {
   en: EnglishTagOptions,
   ja: JapaneseTagOptions,
-  icon: IconTagOptions,
+  // icon: IconTagOptions,
   custom: [],
 };
