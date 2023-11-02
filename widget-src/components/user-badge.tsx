@@ -35,13 +35,6 @@ export function UserBadge({ showName, setShowName }: Props) {
       fill="#FFFFFF"
       cornerRadius={8}
       spacing={6}
-      // effect={{
-      //   type: "drop-shadow",
-      //   color: { r: 0, g: 0, b: 0, a: 0.2 },
-      //   offset: { x: 0, y: 0 },
-      //   blur: 2,
-      //   spread: 2,
-      // }}
     >
       <AutoLayout
         onClick={() => {
