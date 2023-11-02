@@ -1,11 +1,12 @@
 const { widget } = figma;
-const { useSyncedState, usePropertyMenu, AutoLayout, Line, Ellipse } = widget;
+const { useSyncedState, usePropertyMenu, AutoLayout } = widget;
 import { ReloadIcon, PeopleIcon, TagIcon } from "./assets/svg-icons";
 import {
   TextInput,
   UserBadge,
   TagLabel,
   LineConnector,
+  Checkbox,
 } from "./components/index";
 import {
   LnType,
@@ -18,6 +19,7 @@ import {
 
 function Widget() {
   const [ln, setLn] = useSyncedState<LnType>("ln", "en");
+  const [checked, setChecked] = useSyncedState<boolean>("checked", false);
   const [tagOption, setTagOption] = useSyncedState<TagOptionsType>(
     "tagOption",
     EnglishTagOptions
@@ -46,6 +48,10 @@ function Widget() {
     setTagOption(newCustomTagOptions);
     const newTag = newCustomTagOptions.find((tag) => tag.option === tag.option);
     setTag(newTag ?? customTagOptions[0]);
+  };
+
+  const toggleChecked = () => {
+    setChecked(!checked);
   };
 
   const dropdownItems: Array<WidgetPropertyMenuItem> = toggleTag
@@ -170,7 +176,11 @@ function Widget() {
   );
 
   return (
-    <AutoLayout horizontalAlignItems={"center"} verticalAlignItems="center">
+    <AutoLayout
+      horizontalAlignItems={"center"}
+      verticalAlignItems="center"
+      // opacity={checked ? 0.2 : 1}
+    >
       <LineConnector color={tag.color} />
       <AutoLayout
         direction={"vertical"}
@@ -194,6 +204,9 @@ function Widget() {
         {toggleUserBadge && (
           <UserBadge showName={showName} setShowName={setShowName} />
         )}
+        <AutoLayout positioning="absolute" x={490} y={170}>
+          <Checkbox checked={checked} onClick={toggleChecked} />
+        </AutoLayout>
       </AutoLayout>
     </AutoLayout>
   );
